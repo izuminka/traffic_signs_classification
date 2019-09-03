@@ -1,6 +1,7 @@
 import os
 import skimage
-import random # for random.seed sampling of the images
+# import random # for random.seed sampling of the images
+import numpy as np
 
 def load_data(data_dir):
     """Load images and labels
@@ -23,32 +24,48 @@ def load_data(data_dir):
         for image_file in file_paths_group:
             images.append(skimage.data.imread(image_file))
             labels.append(int(label))
-    return images, labels
+    return np.array(images), np.array(labels).astype(int)
 
 def resize_images(images, size):
+    #TODO implement skimage.transform.resize on the entire np.array instead of
+          #converting to list and then back to np.array
     """Resize a list of images to the same lenth and width
 
     Args:
-        images (list): each image (numpy.ndarray) of ndim 3, various l,w
+        images (numpy.ndarray): each image with var shape (w, l, 3)
         size (type): Description of parameter `size`.
 
     Returns:
-        list: each image (numpy.ndarray) of ndim 3 with l=w=size
+        numpy.ndarray: each image (numpy.ndarray) with shape (size, size, 3)
 
     """
-    return [skimage.transform.resize(img, (size, size)) for img in images]
+    return np.array([skimage.transform.resize(img, (size, size)) for img in images])
 
-if __name__ == '__main__':
-    from data_analysis import get_sample_images
-    ROOT_PATH = os.path.dirname(os.path.dirname(os.path.realpath("__file__")))
-    train_work_dir = f"{ROOT_PATH}/data/training"
-    test_work_dir = f"{ROOT_PATH}/data/testing"
-    images, labels = load_data(train_work_dir)
+def get_gray_train_test():
+    """Quick loading and processing of the data for easier training and testing
+        of the NN
 
-    random.seed(0)
-    get_sample_images(5, images)
+    Returns:
+        tuple: images_train, lables_train, images_test, lables_test
+               images_* (numpy.ndarray): each item is image of shape (new_im_size, new_im_size)
+               lables_* (numpy.ndarray): each item is int label
 
-    random.seed(0)
-    NEW_IM_SIZE = 28
-    images_28_28 = resize_images(images, NEW_IM_SIZE)
-    get_sample_images(5, images_28_28)
+    """
+    new_im_size = 28
+    root_path = os.path.dirname(os.path.dirname(os.path.realpath("__file__")))
+    train_work_dir = f"{root_path}/data/training"
+    test_work_dir = f"{root_path}/data/testing"
+    train_test = []
+    for dir_type in [train_work_dir, test_work_dir]:
+        # load raw images
+        images, labels = load_data(dir_type) # same l and w
+        # resize all images to the the same l and w
+        images_28_28 = resize_images(images, new_im_size) #shape (?, 28, 28, 3)
+        # gray out all resized images, now shape (?, 28, 28)
+        images_28_28_gray = skimage.color.rgb2gray(images_28_28)
+        train_test.append([images_28_28_gray, labels])
+            # images_train, lables_train, images_test, lables_test
+    return train_test[0][0], train_test[0][1], train_test[1][0], train_test[1][1]
+
+# images_train, lables_train, images_test, lables_test = get_gray_train_test()
+# print((lables_train[0]))
