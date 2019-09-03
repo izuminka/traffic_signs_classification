@@ -16,17 +16,16 @@ def get_sample_images(num_rand_samples, images):
         plt.axis("off") # no x,y axis
         plt.imshow(images[im_ind])
 
-if __name__ == '__main__':
-    from data_import import load_data
-    ROOT_PATH = os.path.dirname(os.path.realpath("__file__"))
-    train_work_dir = f"{ROOT_PATH}/data/training"
-    test_work_dir = f"{ROOT_PATH}/data/testing"
-    images, labels = load_data(train_work_dir)
+# if __name__ == '__main__':
+#     from data_import import load_data
+#     ROOT_PATH = os.path.dirname(os.path.realpath("__file__"))
+#     train_work_dir = f"{ROOT_PATH}/data/training"
+#     test_work_dir = f"{ROOT_PATH}/data/testing"
+#     images, labels = load_data(train_work_dir)
 
 # # Print out the hostorgram of the image labels
 # NUM_CLASSES = 62
 # plt.hist(labels, NUM_CLASSES)
-
 
 # # Get a tast of the image for each label
 # plt.figure(figsize=(15, 15))
